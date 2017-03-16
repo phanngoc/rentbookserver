@@ -17,11 +17,10 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const expressValidator = require('express-validator');
 const expressStatusMonitor = require('express-status-monitor');
-// const sass = require('node-sass-middleware');
+const lessMiddleware = require('less-middleware');
 const multer = require('multer');
 
 const upload = multer({ dest: path.join(__dirname, 'uploads') });
-
 
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
@@ -47,16 +46,6 @@ const passportConfig = require('./config/passport');
 const app = express();
 
 /**
- * Connect to MongoDB.
- */
-// mongoose.Promise = global.Promise;
-// mongoose.connect(process.env.MONGODB_URI || process.env.MONGOLAB_URI);
-// mongoose.connection.on('error', () => {
-//   console.log('%s MongoDB connection error. Please make sure MongoDB is running.', chalk.red('✗'));
-//   process.exit();
-// });
-
-/**
  * Express configuration.
  */
 app.set('port', process.env.PORT || 3000);
@@ -64,10 +53,10 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.use(expressStatusMonitor());
 app.use(compression());
-// app.use(sass({
-//   src: path.join(__dirname, 'public'),
-//   dest: path.join(__dirname, 'public')
-// }));
+
+app.use(lessMiddleware(path.join(__dirname + '/public')));
+app.use(express.static(__dirname + '/public'));
+
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

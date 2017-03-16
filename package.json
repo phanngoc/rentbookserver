@@ -37,6 +37,7 @@
     "instagram-node": "^0.5.8",
     "jsonwebtoken": "^7.3.0",
     "lastfm": "^0.9.2",
+    "less-middleware": "^2.2.0",
     "lob": "^3.9.0",
     "lodash": "^4.16.6",
     "lusca": "^1.4.1",
