@@ -15,6 +15,13 @@ function removeKeys(results) {
   return objArr;
 }
 
+Base.prototype.createWithKey = function(user, key) {
+  var objRef = firebase.database().ref(this.model + "/" + key);
+  return new Promise(function(resolve, reject) {
+    resolve(objRef.set(user));
+  })
+};
+
 Base.prototype.create = function(user) {
   var objRef = firebase.database().ref().child(this.model);
   return new Promise(function(resolve, reject) {
