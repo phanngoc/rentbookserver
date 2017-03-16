@@ -95,10 +95,14 @@ Base.prototype.findOne = function(conditions, withKey = false) {
     const queriedDbRef = querybaseRef
       .where(conditions);
       queriedDbRef.on('value', function(snap) {
+          if (!snap.val()) {
+            resolve(snap.val());
+            return;
+          }
           if (withKey) {
             resolve(snap.val());
           } else {
-            resolve(snap.val()[Object.keys(snap.val())[0]]);
+            resolve(snap.val()[_.keys(snap.val())[0]]);
           }
       });
   });
