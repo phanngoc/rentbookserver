@@ -2,7 +2,7 @@ import {Model} from "objection";
 
 export default class Comment extends Model {
     static get tableName() {
-        return "comments";
+        return "locations";
     }
 
     static get relationMappings() {
@@ -11,7 +11,7 @@ export default class Comment extends Model {
                 relation: Model.BelongsToOneRelation,
                 modelClass: __dirname + '/User',
                 join: {
-                    from: 'comments.user_id',
+                    from: 'locations.user_id',
                     to: 'users.id'
                 }
             }

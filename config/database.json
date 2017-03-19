@@ -1,0 +1,34 @@
+{
+  "dev": {
+    "driver": "pg",
+    "user": "postgres"
+  },
+
+  "test": {
+    "driver": "sqlite3",
+    "filename": ":memory:"
+  },
+
+  "prod": {
+    "driver": "mysql",
+    "user": "root",
+    "password": "root"
+  },
+
+  "pg": {
+    "driver": "pg",
+    "user": "postgres",
+    "password": "Phann123@123",
+    "host": "localhost",
+    "database": "postgres",
+    "schema": "rentbook"
+  },
+
+  "mongo": {
+    "driver": "mongodb",
+    "database": "my_db",
+    "host": "localhost"
+  },
+
+  "other": "postgres://uname:pw@server.com/dbname"
+}
