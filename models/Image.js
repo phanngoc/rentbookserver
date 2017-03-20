@@ -1,4 +1,20 @@
-var Base = require('./Base');
-var Image = new Base("images");
+import {Model} from "objection";
 
-module.exports = Image;
+export default class Image extends Model {
+  static get tableName() {
+    return "images";
+  }
+
+  static get relationMappings() {
+    return {
+      user: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: __dirname + '/Book',
+        join: {
+            from: 'images.book_id',
+            to: 'books.id'
+        }
+      }
+    };
+  }
+}
