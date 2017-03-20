@@ -5,20 +5,19 @@ const _ = require('underscore');
 
 exports.seed = function(knex, Promise) {
   // Deletes ALL existing entries
-  return knex.table('books').del()
+  return knex.table('tags').del()
    .then(function() {
      // Inserts seed entries
-     var booksPromises = [];
+     var tagsPromises = [];
      for (i in _.range(10)) {
        console.log("running");
-       let book = knex.table('books').insert([
+       let tag = knex.table('tags').insert([
          {
-           title: faker.lorem.words(),
-           description: faker.lorem.words()
+           name: faker.lorem.word(),
          },
        ]);
-       booksPromises.push(book);
+       tagsPromises.push(tag);
      }
-     return Promise.all(booksPromises);
+     return Promise.all(tagsPromises);
    });
 };

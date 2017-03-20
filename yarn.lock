@@ -84,14 +84,14 @@ ajv-keywords@^1.0.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/ajv-keywords/-/ajv-keywords-1.1.1.tgz#02550bc605a3e576041565628af972e06c549d50"
 
-ajv@^4.7.0, ajv@^4.8.2:
+ajv@^4.7.0:
   version "4.8.2"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-4.8.2.tgz#65486936ca36fea39a1504332a78bebd5d447bdc"
   dependencies:
     co "^4.6.0"
     json-stable-stringify "^1.0.1"
 
-ajv@^4.9.1:
+ajv@^4.8.2, ajv@^4.9.1:
   version "4.11.5"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-4.11.5.tgz#b6ee74657b993a01dce44b7944d56f485828d5bd"
   dependencies:
@@ -3623,9 +3623,9 @@ object.omit@^2.0.0:
     for-own "^0.1.4"
     is-extendable "^0.1.1"
 
-objection@^0.7.8:
-  version "0.7.8"
-  resolved "https://registry.yarnpkg.com/objection/-/objection-0.7.8.tgz#22c216aa3d76f31e645fdb66df891f922b5dbbba"
+objection@^0.7.9:
+  version "0.7.9"
+  resolved "https://registry.yarnpkg.com/objection/-/objection-0.7.9.tgz#a4b47efc3f470e8253f1e4786109806f78ae93f8"
   dependencies:
     ajv "^4.8.2"
     babel-runtime "^6.6.1"
