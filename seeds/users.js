@@ -11,10 +11,11 @@ exports.seed = function(knex, Promise) {
      .then(function() {
        // Inserts seed entries
        var userPromises = [];
-       for (i in _.range(10)) {
-         console.log("running");
+       for (i in _.range(1, 11)) {
+         console.log("running users");
          let user = knex.table('users').insert([
            {
+             id: i,
              name: faker.name.findName(),
              email: faker.internet.email(),
              username: faker.internet.userName(),

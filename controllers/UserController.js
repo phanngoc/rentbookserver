@@ -9,25 +9,22 @@ export default class UserController extends BaseController {
   constructor(req, res) {
     super(req, res);
   }
-  getLogin() {
-    if (this.req.user) {
-      return this.res.redirect('/');
-    }
-    this.res.render('account/login', {
-      title: 'Login'
-    });
-  };
 
-  allUsers() {
-    var self = this;
-    User
-    .query()
-    .then(function (user) {
-      console.log("co vao day");
-      self.res.json(user);
+  async allUsers() {
+    let users = await User
+      .query()
+      .then(function (user) {
+        return user;
+      })
+      .catch(function (err) {
+        console.log('oh noes');
+      });
+      
+    this.response.json({
+      success: true,
+      messageCode: 200,
+      messageInfo: null,
+      body: users
     })
-    .catch(function (err) {
-      console.log('oh noes');
-    });
   }
 }

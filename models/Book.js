@@ -1,4 +1,8 @@
-import {Model} from "objection";
+import {Model} from "objection"
+import User from './User'
+import Tag from './Tag'
+import Comment from './Comment'
+import Image from './Image'
 
 export default class Book extends Model {
     static get tableName() {
@@ -9,22 +13,38 @@ export default class Book extends Model {
       return {
         user: {
           relation: Model.BelongsToOneRelation,
-          modelClass: __dirname + '/User',
+          modelClass: User,
           join: {
             from: 'books.user_id',
             to: 'users.id'
           }
         },
-        tag: {
-          relation: Model.ManyToManyRelation,
-          modelClass: __dirname + '/Tag',
+        comments: {
+          relation: Model.HasManyRelation,
+          modelClass: Comment,
           join: {
-            from: 'Book.id',
+            from: 'books.id',
+            to: 'comments.book_id'
+          }
+        },
+        images: {
+          relation: Model.HasManyRelation,
+          modelClass: Image,
+          join: {
+            from: 'books.id',
+            to: 'images.book_id'
+          }
+        },
+        tags: {
+          relation: Model.ManyToManyRelation,
+          modelClass: Tag,
+          join: {
+            from: 'books.id',
             through: {
-              from: 'Book_Tag.bookId',
-              to: 'Book_Tag.tagId'
+              from: 'book_tags.book_id',
+              to: 'book_tags.tag_id'
             },
-            to: 'Tag.id'
+            to: 'tags.id'
           }
         },
       };

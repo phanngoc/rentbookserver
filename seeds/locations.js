@@ -9,7 +9,7 @@ exports.seed = function(knex, Promise) {
    .then(function() {
      // Inserts seed entries
      var locationsPromises = [];
-     for (i in _.range(10)) {
+     for (i in _.range(1, 11)) {
        let location = knex.table('locations').insert([
          {
            user_id: _.sample(_.range(1, 11)),

@@ -8,7 +8,8 @@ exports.seed = function(knex, Promise) {
    .then(function() {
      // Inserts seed entries
      var imagesPromises = [];
-     for (i in _.range(10)) {
+     for (i in _.range(1, 11)) {
+       console.log("running images");
        let tag = knex.table('images').insert([
          {
            book_id: _.sample(_.range(1, 11)),

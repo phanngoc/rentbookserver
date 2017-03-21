@@ -10,7 +10,7 @@ exports.seed = function(knex, Promise) {
      // Inserts seed entries
      var tagsPromises = [];
      for (i in _.range(10)) {
-       console.log("running");
+       console.log("running tags");
        let tag = knex.table('tags').insert([
          {
            name: faker.lorem.word(),

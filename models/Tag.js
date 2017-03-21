@@ -1,15 +1,16 @@
 import {Model} from "objection";
+import Book from './Book'
 
 export default class Tag extends Model {
     static get tableName() {
-      return "books";
+      return "tags";
     }
 
     static get relationMappings() {
       return {
         book: {
           relation: Model.ManyToManyRelation,
-          modelClass: __dirname + '/Book',
+          modelClass: Book,
           join: {
             from: 'Tag.id',
             through: {
