@@ -22,7 +22,7 @@ const flash = require('express-flash');
 const path = require('path');
 const mongoose = require('mongoose');
 const passport = require('passport');
-const expressValidator = require('express-validator');
+
 const expressStatusMonitor = require('express-status-monitor');
 const lessMiddleware = require('less-middleware');
 
@@ -65,7 +65,10 @@ app.use(express.static(__dirname + '/public'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(expressValidator());
+
+var bootstrap = require('./bootstrap/bootstrap');
+bootstrap(app);
+
 app.use(session({
   resave: true,
   saveUninitialized: true,
@@ -104,13 +107,11 @@ app.use((req, res, next) => {
 
 /* code autoload and attach database */
 var load = require('express-load');
-var bootstrap = require('./bootstrap/bootstrap');
+
 load('middleware')
   .then('controllers')
   .then('routes')
   .into(app);
-
-bootstrap(app);
 
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
 

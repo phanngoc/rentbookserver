@@ -43,7 +43,7 @@ export default class BookController extends BaseController {
       cos(radians("+lat+")) * cos(radians(\"user:locations\".\"lat\")) * (sin(radians((\"user:locations\".\"lng\" - "+lng+") / 2))) ^ 2)) as distance";
 
     let nearestUsers = await Book.query()
-      .eager('user')
+      .eager('[user, user.locations]')
       .joinRelation('user.locations')
       .distinct('books.id')
       .select('books.*', Book.raw(querySelect))
