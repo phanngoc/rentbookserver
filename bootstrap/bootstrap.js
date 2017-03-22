@@ -6,10 +6,6 @@ import expressValidator from "express-validator";
 import pluralize from "pluralize";
 import _ from "lodash"
 
-function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
 module.exports = function (app){
   let env = app.get('env');
   var knex = Knex(dbConfig[env].postgresConnection);
@@ -17,11 +13,21 @@ module.exports = function (app){
   app.set("knex", knex);
   app.use(expressValidator({
     customValidators: {
-      isUnique: function(input, params) {
-        var modelName = _.upperFirst(pluralize.singular(params[0]));
-        console.log("isUnique", modelName, params);
-        return false;
-      }
+      // isUnique: function(value, params) {
+      //   return new Promise(function(resolve, reject) {
+      //     var condition = {};
+      //     condition[params[1]] = value;
+      //     var count = knex(params[0]).where(condition).
+      //       select(knex.raw('count(*) as num')).then(function(result) {
+      //         let num = parseInt(result[0].num);
+      //         if (num == 0) {
+      //           resolve(true);
+      //         } else {
+      //           resolve(false);
+      //         }
+      //     });
+      //   });
+      // }
     }
   }));
 }

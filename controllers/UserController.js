@@ -32,14 +32,13 @@ export default class UserController extends BaseController {
 
 
   async create() {
-
     this.request.checkBody('name', 'Name is required').notEmpty();
     this.request.checkBody('email', 'Email is required').notEmpty();
     this.request.checkBody('username', 'Username is required').notEmpty();
     this.request.checkBody('phone', 'Phone is required').notEmpty();
-    this.request.checkBody('name', 'Name is already existed').isUnique(['users', 'name']);
 
-    var errors = this.request.validationErrors();
+    var errors = this.request.validationErrors(true);
+
     if (errors) {
       this.responseErrors(errors);
     } else {
@@ -69,6 +68,16 @@ export default class UserController extends BaseController {
 
       this.responseSuccess(user);
     }
+  }
+
+  async show() {
+    let user = await User.query()
+      .findById(this.request.params.id)
+      .eager('[actions, actions.book, locations]')
+      .then(function(result) {
+        return result;
+      });
+      this.responseSuccess(user);
   }
 
 }

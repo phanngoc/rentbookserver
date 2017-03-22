@@ -11,4 +11,9 @@ module.exports = function(app) {
     let userObj = new user.default(req, res);
     userObj.create();
   });
+
+  app.get("/api/user/:id/books", function(req, res) {
+    let userObj = new user.default(req, res);
+    userObj.show();
+  });
 };

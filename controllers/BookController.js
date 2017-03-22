@@ -1,8 +1,9 @@
 import Book from '../models/Book';
 import User from '../models/User';
-import Location from '../models/Location';
-import Comment from '../models/Comment';
-import Image from '../models/Image';
+import Location from '../models/Location'
+import Comment from '../models/Comment'
+import Image from '../models/Image'
+import Action from '../models/Action'
 import _ from 'underscore';
 import async from 'async';
 import BaseController from './BaseController'
@@ -188,4 +189,109 @@ export default class BookController extends BaseController {
       body: {bookId: book.id}
     });
   }
+
+  async borrow() {
+    var self = this;
+    let book = await Book.query().findById(this.request.params.id)
+      .then(function(result) {
+        return result;
+      });
+    if (book.user_id == this.request.decoded.id) {
+      this.responseErrors(0);
+    } else {
+      let action = await Action.query()
+        .insert({
+          user_id: this.request.decoded.id,
+          book_id: this.request.params.id,
+          type: Book.BORROW
+        })
+        .then(function(result) {
+          return result;
+        }).catch(function(errors) {
+          self.responseErrors(errors);
+        });
+      this.responseSuccess(action);
+    }
+  }
+
+  async accept() {
+    var self = this;
+    let book = await Book.query().findById(this.request.params.book_id)
+      .then(function(result) {
+        return result;
+      });
+    if (book.user_id == this.request.decoded.id) {
+      this.responseErrors(0);
+    } else {
+      let action = await Action.query()
+        .update({type: Book.ACCEPT})
+        .where("user_id", this.request.params.id)
+        .andWhere("book_id", this.request.params.book_id)
+        .andWhere("type", Book.BORROW)
+        .then(function(result) {
+          return result;
+        }).catch(function(errors) {
+          self.responseErrors(errors);
+        });
+      this.responseSuccess(action);
+    }
+  }
+
+  async reback() {
+    var self = this;
+    let book = await Book.query().findById(this.request.params.book_id)
+      .then(function(result) {
+        return result;
+      });
+
+    if (book.user_id == this.request.decoded.id) {
+      let action = await Action.query()
+        .where("user_id", this.request.params.id)
+        .andWhere("book_id", this.request.params.book_id)
+        .andWhere("type", Book.ACCEPT)
+        .update({type: Book.READY})
+        .then(function(result) {
+          return result;
+        }).catch(function(errors) {
+          self.responseErrors(errors);
+        });
+      this.responseSuccess(action);
+    } else {
+      self.responseErrors(0);
+    }
+  }
+
+  async search() {
+    var lat = this.request.query.lat;
+    var lng = this.request.query.lng;
+    var q = this.request.query.q;
+
+    let querySelect = "2 * 3961 * asin(sqrt((sin(radians((\"user:locations\".\"lat\" - "+lat+") / 2))) ^ 2 + \
+      cos(radians("+lat+")) * cos(radians(\"user:locations\".\"lat\")) * (sin(radians((\"user:locations\".\"lng\" - "+lng+") / 2))) ^ 2)) as distance";
+
+    let booksSearch = await Book.query()
+      .where('title', 'like', '%' + q + '%')
+      .andWhere('description', 'like', '%' + q + '%')
+      .eager('[user, user.locations]')
+      .joinRelation('user.locations')
+      .distinct('books.id')
+      .select('books.*', Book.raw(querySelect))
+      .orderBy('distance')
+      .then(function(results) {
+        var uniques = _.map(_.groupBy(results, function(doc){
+          return doc.id;
+        }),function(grouped){
+          return grouped[0];
+        });
+        return uniques
+      });
+
+    this.response.json({
+        success: true,
+        statusCode: 200,
+        body: booksSearch
+    });
+  }
+
+
 }

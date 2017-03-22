@@ -5,6 +5,7 @@ import Comment from './Comment'
 import Image from './Image'
 
 export default class Book extends Model {
+
     static get tableName() {
         return "books";
     }
@@ -50,3 +51,7 @@ export default class Book extends Model {
       };
     }
 }
+
+Book.BORROW = 0;
+Book.ACCEPT = 1;
+Book.READY = 2;

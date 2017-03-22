@@ -2,6 +2,7 @@ import {Model} from "objection";
 import Location from "./Location"
 import Book from "./Book"
 import Comment from "./Comment"
+import Action from "./Action"
 
 export default class User extends Model {
   static get tableName() {
@@ -32,6 +33,14 @@ export default class User extends Model {
           join:{
               from: 'users.id',
               to: 'comments.user_id'
+          }
+        },
+        actions: {
+          relation: Model.HasManyRelation,
+          modelClass: Action,
+          join:{
+              from: 'users.id',
+              to: 'actions.user_id'
           }
         }
       };
