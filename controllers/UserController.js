@@ -77,7 +77,16 @@ export default class UserController extends BaseController {
       .then(function(result) {
         return result;
       });
-      this.responseSuccess(user);
+    this.responseSuccess(user);
   }
 
+  async myProfile() {
+    let user = await User.query()
+      .findById(this.request.decoded.user.id)
+      .eager('[actions, actions.book, locations]')
+      .then(function(result) {
+        return result;
+      });
+    this.responseSuccess(user);
+  }
 }

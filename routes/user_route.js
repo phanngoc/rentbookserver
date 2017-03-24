@@ -12,8 +12,13 @@ module.exports = function(app) {
     userObj.create();
   });
 
-  app.get("/api/user/:id/books", function(req, res) {
+  app.get("/api/users/:id/books", function(req, res) {
     let userObj = new user.default(req, res);
     userObj.show();
+  });
+
+  app.get("/api/myprofile", function(req, res) {
+    let userObj = new user.default(req, res);
+    userObj.myProfile();
   });
 };
