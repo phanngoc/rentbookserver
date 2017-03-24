@@ -17,7 +17,7 @@ module.exports = function(app) {
     userObj.show();
   });
 
-  app.get("/api/myprofile", function(req, res) {
+  app.get("/api/users/myprofile", function(req, res) {
     let userObj = new user.default(req, res);
     userObj.myProfile();
   });

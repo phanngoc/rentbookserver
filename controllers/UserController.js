@@ -65,7 +65,6 @@ export default class UserController extends BaseController {
             return result.id;
           });
       }
-
       this.responseSuccess(user);
     }
   }
@@ -82,8 +81,8 @@ export default class UserController extends BaseController {
 
   async myProfile() {
     let user = await User.query()
-      .findById(this.request.decoded.user.id)
-      .eager('[actions, actions.book, locations]')
+      .findById(this.request.decoded.id)
+      .eager('[books, actions, actions.book, locations]')
       .then(function(result) {
         return result;
       });

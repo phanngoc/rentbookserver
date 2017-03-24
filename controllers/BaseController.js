@@ -11,10 +11,10 @@ export default class BaseController {
       body: errors
     });
   }
-  
+
   responseSuccess(body) {
     this.response.json({
-      success: false,
+      success: true,
       statusCode: 200,
       body: body
     });

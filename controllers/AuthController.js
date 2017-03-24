@@ -30,7 +30,10 @@ export default class AuthController extends BaseController {
             return {
               success: true,
               message: 'Enjoy your token!',
-              token: token
+              body: {
+                token: token,
+                user: user
+              }
             };
           }
         }
