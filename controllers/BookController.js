@@ -68,7 +68,10 @@ export default class BookController extends BaseController {
   async show() {
     var id = this.request.params.id;
     let bookDetail = await Book.query()
-      .eager('[user, comments, images]')
+      .eager('[user, comments.user, images]')
+      .modifyEager('comments', function (builder) {
+        builder.orderBy('created_at', 'desc');
+      })
       .findById(id)
       .then(function(results) {
         return results;

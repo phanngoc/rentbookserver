@@ -26,8 +26,13 @@ export default class CommentController extends BaseController {
           book_id: this.request.params.book_id,
         })
         .then(function(result) {
-          return result;
+          return result.$loadRelated('user');
         });
+      // let resultComment = await Comment.query().eager('user')
+      //   .findById(comment.id)
+      //   .then(function(result) {
+      //     return result;
+      //   });
       this.responseSuccess(comment);
     }
   }

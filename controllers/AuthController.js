@@ -24,7 +24,7 @@ export default class AuthController extends BaseController {
             // if user is found and password is right
             // create a token
             var token = jwt.sign(user, process.env.KEY_SECRET, {
-              expiresIn: 60 * 60 // expires in 24 hours
+              expiresIn: 60 * 60 * 60 // expires in 24 hours
             });
 
             return {
