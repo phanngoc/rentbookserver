@@ -28,11 +28,6 @@ export default class CommentController extends BaseController {
         .then(function(result) {
           return result.$loadRelated('user');
         });
-      // let resultComment = await Comment.query().eager('user')
-      //   .findById(comment.id)
-      //   .then(function(result) {
-      //     return result;
-      //   });
       this.responseSuccess(comment);
     }
   }

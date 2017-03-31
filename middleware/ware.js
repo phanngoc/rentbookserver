@@ -21,7 +21,7 @@ module.exports = function(app) {
         }
       });
 
-    } else if (req.path.match(/api/g)) {
+    } else if (req.path.match(/api/g) || req.path.match(/uploads/g)) {
       next();
     } else {
       return res.status(403).send({

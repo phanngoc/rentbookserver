@@ -42,4 +42,9 @@ module.exports = function(app) {
     let bookInstance = new book.default(req, res);
     bookInstance.search();
   });
+
+  app.get('/api/books/trending', function(req, res) {
+    let bookInstance = new book.default(req, res);
+    bookInstance.trending();
+  });
 };

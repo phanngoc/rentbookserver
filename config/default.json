@@ -1,0 +1,6 @@
+{
+  "pagi": {
+    "limitSearch" : 3,
+    "limitTrending": 3
+  }
+}

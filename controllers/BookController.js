@@ -10,6 +10,7 @@ import BaseController from './BaseController'
 import knex from 'knex'
 import Promise from 'promise';
 import fs from 'fs';
+import config from 'config';
 
 export default class BookController extends BaseController {
 
@@ -44,7 +45,7 @@ export default class BookController extends BaseController {
       cos(radians("+lat+")) * cos(radians(\"user:locations\".\"lat\")) * (sin(radians((\"user:locations\".\"lng\" - "+lng+") / 2))) ^ 2)) as distance";
 
     let nearestUsers = await Book.query()
-      .eager('[user, user.locations]')
+      .eager('[user, user.locations, images]')
       .joinRelation('user.locations')
       .distinct('books.id')
       .select('books.*', Book.raw(querySelect))
@@ -66,6 +67,8 @@ export default class BookController extends BaseController {
   }
 
   async show() {
+    let user = this.request.decoded;
+    let userId = user ? user.id : 0;
     var id = this.request.params.id;
     let bookDetail = await Book.query()
       .eager('[user, comments.user, images]')
@@ -73,6 +76,11 @@ export default class BookController extends BaseController {
         builder.orderBy('created_at', 'desc');
       })
       .findById(id)
+      .select('*', knex.raw('CASE WHEN EXISTS (SELECT * FROM actions act \
+        WHERE act.book_id = books.id and act.user_id = ' + userId + ') then 1 ELSE 0 END AS isBorrow'),
+       knex.raw('(SELECT type FROM actions act \
+        WHERE act.book_id = books.id and act.user_id = ' + userId + ')')
+      )
       .then(function(results) {
         return results;
       });
@@ -93,13 +101,16 @@ export default class BookController extends BaseController {
         return result.id;
       });
 
-    let locationId = await Location.query()
-        .insert(_.extend(_.pick(this.request.body, 'lat', 'lng'),
+    let objLocation = _.pick(this.request.body, 'lat', 'lng');
+    if (!_.values(objLocation).some(x => x !== undefined)) {
+      let locationId = await Location.query()
+        .insert(_.extend(objLocation,
           {user_id: this.request.decoded.id})
         )
         .then(function(result) {
           return result.id;
         });
+    }
 
     _.each(this.request.files, function(elem) {
       let image = Image.query()
@@ -268,6 +279,8 @@ export default class BookController extends BaseController {
     var lat = this.request.query.lat;
     var lng = this.request.query.lng;
     var q = this.request.query.q;
+    var page = this.request.query.page;
+    var limit = require('config').get('pagi.limitSearch');
 
     let querySelect = "2 * 3961 * asin(sqrt((sin(radians((\"user:locations\".\"lat\" - "+lat+") / 2))) ^ 2 + \
       cos(radians("+lat+")) * cos(radians(\"user:locations\".\"lat\")) * (sin(radians((\"user:locations\".\"lng\" - "+lng+") / 2))) ^ 2)) as distance";
@@ -275,24 +288,66 @@ export default class BookController extends BaseController {
     let booksSearch = await Book.query()
       .where('title', 'like', '%' + q + '%')
       .andWhere('description', 'like', '%' + q + '%')
-      .eager('[user, user.locations]')
+      .eager('[images, user, user.locations]')
       .joinRelation('user.locations')
       .distinct('books.id')
       .select('books.*', Book.raw(querySelect))
       .orderBy('distance')
+      .offset((page-1) * limit)
+      .limit(limit)
       .then(function(results) {
         var uniques = _.map(_.groupBy(results, function(doc){
           return doc.id;
         }),function(grouped){
           return grouped[0];
         });
-        return uniques
+        return uniques;
       });
 
+    let isLast = booksSearch.length < 3 ? true: false;
+
     this.response.json({
-        success: true,
-        statusCode: 200,
-        body: booksSearch
+      success: true,
+      statusCode: 200,
+      body: {
+        books: booksSearch,
+        isLast: isLast
+      }
+    });
+  }
+
+  async trending() {
+    var page = this.request.query.page;
+    var limit = require('config').get('pagi.limitTrending');
+
+    let querySelect = "COUNT(DISTINCT \"actions\".\"user_id\") as \"numRate\"";
+
+    let booksTrending = await Book.query()
+      .eager('[images, user, user.locations]')
+      .leftJoin('actions', 'actions.book_id', 'books.id')
+      .select('books.*', Book.raw(querySelect))
+      .groupBy('books.id')
+      .orderBy('numRate')
+      .offset((page-1) * limit)
+      .limit(limit)
+      .then(function(results) {
+        var uniques = _.map(_.groupBy(results, function(doc){
+          return doc.id;
+        }),function(grouped){
+          return grouped[0];
+        });
+        return uniques;
+      });
+
+    let isLast = booksTrending.length < 3 ? true: false;
+    console.log("isLast", isLast);
+    this.response.json({
+      success: true,
+      statusCode: 200,
+      body: {
+        books: booksTrending,
+        isLast: isLast
+      }
     });
   }
 

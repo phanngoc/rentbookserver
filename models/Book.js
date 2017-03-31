@@ -3,6 +3,7 @@ import User from './User'
 import Tag from './Tag'
 import Comment from './Comment'
 import Image from './Image'
+import Action from './Action'
 
 export default class Book extends Model {
 
@@ -12,6 +13,14 @@ export default class Book extends Model {
 
     static get relationMappings() {
       return {
+        actions: {
+          relation: Model.HasManyRelation,
+          modelClass: Action,
+          join: {
+            from: 'books.id',
+            to: 'actions.book_id'
+          }
+        },
         user: {
           relation: Model.BelongsToOneRelation,
           modelClass: User,
