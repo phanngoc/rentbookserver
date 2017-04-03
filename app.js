@@ -23,7 +23,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const passport = require('passport');
 
-const expressStatusMonitor = require('express-status-monitor');
+// const expressStatusMonitor = require('express-status-monitor');
 const lessMiddleware = require('less-middleware');
 
 const upload = require('./config/upload');
@@ -56,7 +56,7 @@ const app = express();
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
-app.use(expressStatusMonitor());
+// app.use(expressStatusMonitor());
 app.use(compression());
 
 app.use(lessMiddleware(path.join(__dirname + '/public')));
@@ -121,6 +121,9 @@ app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }))
  */
 app.use(errorHandler());
 
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+
 /**
  * Start Express server.
  */
@@ -129,15 +132,40 @@ app.listen(app.get('port'), () => {
   console.log('  Press CTRL-C to stop\n');
 });
 
-var server = require('http').Server(app);
-var io = require('socket.io')(server);
 
-io.on('connection', function (socket) {
-  console.log('connection');
+io.on('connection', function(socket){
+
+  var userSend = socket.decoded;
+  var userReceive = socket.handshake.query.user_id;
   socket.emit('news', { hello: 'world' });
-  socket.on('response', function (data) {
-    console.log(data);
+  socket.on('messages', function(data) {
+
   });
+});
+
+io.listen(3001);
+
+var jwt = require('jsonwebtoken');
+
+io.use(function(socket, next){
+  var token = socket.handshake.query.token;
+
+  if (token) {
+    // verifies secret and checks exp
+    jwt.verify(token, process.env.KEY_SECRET, function(err, decoded) {
+      if (err) {
+        next(new Error("not authorized"));
+      } else {
+        // if everything is good, save to request for use in other routes
+        socket.decoded = decoded;
+        next();
+      }
+    });
+
+  } else {
+    next(new Error("not authorized"));
+  }
+
 });
 
 module.exports = app;
