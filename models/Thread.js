@@ -9,7 +9,7 @@ export default class Thread extends Model {
 
     static get relationMappings() {
       return {
-        member_one: {
+        person_one: {
           relation: Model.BelongsToOneRelation,
           modelClass: User,
           join: {
@@ -17,7 +17,7 @@ export default class Thread extends Model {
             to: 'users.id'
           }
         },
-        member_two: {
+        person_two: {
           relation: Model.BelongsToOneRelation,
           modelClass: User,
           join: {

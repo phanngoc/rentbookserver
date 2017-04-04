@@ -3,37 +3,25 @@ import Thread from '../models/Thread'
 import Message from '../models/Message'
 import _ from 'lodash'
 
-export default class ChatRepository {
+export default class UserRepository {
   constructor(db) {
 
   }
 
-  async getMessageByMember(user_id_one, user_id_two) {
-    let response = await Message.query().joinRelation('[thread]')
-      .eager('[user, thread]')
-      .where(builder => {
-        builder.where('thread.member_one', user_id_one)
-        .where('thread.member_two', user_id_two)
-      })
-      .orWhere(builder => {
-        builder.where('thread.member_one', user_id_two)
-        .where('thread.member_two', user_id_one)
-      })
-     .then(function(response) {
-        return response;
+  async updateSocketId(userId, socketId) {
+    let user = await User.query()
+      .updateAndFetchById(userId,
+        {socket_id: socketId}
+      )
+      .then(function(result) {
+        return result;
       });
-    return response;
   }
 
-  async getSocketIdByThread(threadId) {
-    let results = Thread.query()
-      .eager('[person_one, person_two]')
-      .pick(User, ['socket_id'])
-      .where('id', threadId)
-      .first().then(function(response) {
-        return [response.person_one.socket_id, response.person_one.socket_id];
-      });
-    return results;
+  async findOne(userId) {
+    return User.query()
+      .where('id', userId)
+      .first();
   }
 
   async addNewMessage(obj, user_send) {

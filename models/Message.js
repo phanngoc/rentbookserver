@@ -1,6 +1,6 @@
 import {Model} from "objection"
 import User from './User'
-import Thread from './User'
+import Thread from './Thread'
 
 export default class Message extends Model {
 
