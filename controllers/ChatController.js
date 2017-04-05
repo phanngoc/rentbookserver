@@ -26,8 +26,7 @@ export default function(server) {
     socket.on('receive_new_message', function(data) {
       chatRepo.addNewMessage(data, userSend.id).then(function(message) {
         userRepo.findOne(userReceive).then(function(user) {
-          // io.sockets.socket(user.socket_id).emit('broadcast_message', message);
-          io.clients[user.socket_id].send('broadcast_message', message);
+          socket.to(user.socket_id).emit('broadcast_message', message);
         });
       });
     });

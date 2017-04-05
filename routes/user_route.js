@@ -12,6 +12,13 @@ module.exports = function(app) {
     userObj.create();
   });
 
+  app.post("/api/users/update-token", function(req, res) {
+    console.log("--------------------------go to route");
+    let userObj = new user.default(req, res);
+    userObj.updateToken();
+  });
+
+
   app.get("/api/users/:id/books", function(req, res) {
     let userObj = new user.default(req, res);
     userObj.show();

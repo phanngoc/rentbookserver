@@ -6,6 +6,7 @@ import User from '../models/User'
 import BaseController from './BaseController'
 import bcrypt from 'bcrypt-nodejs';
 import _ from 'underscore';
+import DeviceToken from '../models/DeviceToken'
 
 export default class UserController extends BaseController {
   constructor(req, res) {
@@ -30,6 +31,16 @@ export default class UserController extends BaseController {
     })
   }
 
+  async updateToken() {
+    let token = await DeviceToken
+      .query()
+      .insert({'token' : this.request.body.device_token, 'user_id' : this.request.decoded.id})
+      .then(function (result) {
+        return result;
+      });
+
+    this.responseSuccess(token);
+  }
 
   async create() {
     this.request.checkBody('name', 'Name is required').notEmpty();
