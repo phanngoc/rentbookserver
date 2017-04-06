@@ -350,6 +350,4 @@ export default class BookController extends BaseController {
       }
     });
   }
-
-
 }

@@ -2,5 +2,8 @@
   "pagi": {
     "limitSearch" : 3,
     "limitTrending": 3
+  },
+  "development": {
+    "gcm_api_key" : "AIzaSyAKtn0LF-ZHf-6FZmDnCmL3p1sKqcAA5k0"
   }
 }
