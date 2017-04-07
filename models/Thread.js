@@ -1,5 +1,6 @@
 import {Model} from "objection"
 import User from './User'
+import Message from './Message'
 
 export default class Thread extends Model {
 
@@ -23,6 +24,14 @@ export default class Thread extends Model {
           join: {
             from: 'threads.member_two',
             to: 'users.id'
+          }
+        },
+        messages: {
+          relation: Model.HasManyRelation,
+          modelClass: Message,
+          join: {
+            from: 'threads.id',
+            to: 'messages.thread_id'
           }
         }
       };

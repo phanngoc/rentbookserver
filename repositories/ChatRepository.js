@@ -20,23 +20,23 @@ export default class ChatRepository {
     });
   }
 
-  async getOppositeUser(message, user_id) {
-    let thread = await Thread.query().findById(message.thread_id)
+  async getOppositeUser(message) {
+    let userIdAnother = await Thread.query().findById(message.thread_id)
     .eager('[person_one, person_two]')
-    .pick(['member_one', 'member_two']);
+    .pick(['member_one', 'member_two'])
     .then(function(result) {
-      return _.difference([result.member_one, result.member_two], [user_id]);
+      return _.difference(_.values(result), [message.user_id])[0];
     });
-    if (thread.person_one.id == user_id) {
-      return thread.person_two;
-    } else {
-      return thread.person_one;
-    }
+
+    return await User.query().findById(userIdAnother).then(function(user) {
+      return user;
+    });
   }
 
-  async pushNotification(message, user_id) {
-    let deviceTokens = await this.getDeviceToken(user_id);
-    let oppositeUser = await this.getOppositeUser(member, user_id);
+  async pushNotification(message) {
+
+    let oppositeUser = await this.getOppositeUser(message);
+    let deviceTokens = await this.getDeviceToken(oppositeUser.id);
 
     var gcmMessage = new gcm.Message({
       collapseKey: 'demo',
@@ -44,10 +44,10 @@ export default class ChatRepository {
       contentAvailable: true,
       delayWhileIdle: true,
       timeToLive: 3,
-      dryRun: true,
+      dryRun: false,
       data: {
         book_id: message.book_id,
-        user: oppositeUser
+        user: message.user
       },
       notification: {
         title: "New message from " + message.user.name,
@@ -55,17 +55,15 @@ export default class ChatRepository {
         body: message.text
       }
     });
-    var gcm_api_key = config.get(process.env.NODE_ENV'.gcm_api_key');
-    let sender = new gcm.Sender(gcm_api_key);
+    var gcm_api_key = config.get('development.gcm_api_key');
+    let sender = new gcm.Sender('AAAACRgMV2w:APA91bEmaGfUuPssp989DzBzFvLiC8X8uZV17GnMoFIxI1-Tvaq9nYquZhgpqmfNdLDlT0Ihwv3VJhT4y8P1a6cuBjUHIxykoZTe0DmJIEyQTDsaXKpMp4hLXo4hJM6sotBbjXmY0Nwj');
 
     return new Promise((resolve, reject) => {
       sender.send(gcmMessage, {registrationTokens: deviceTokens}, function (err, response) {
         if (err) {
-            console.log(err);
             reject(err);
         }
         else {
-            console.log(response);
             resolve(response);
         }
       });
@@ -102,8 +100,8 @@ export default class ChatRepository {
 
   async addNewMessage(obj, user_send) {
     let user_receive = _.result(obj, 'user.id');
-    let thread = await this.startConversation(user_receive, user_send);
-    let data = _.pick(obj, ['text', 'book_id']);
+    let thread = await this.startConversation(user_receive, user_send, obj.book_id);
+    let data = _.pick(obj, ['text']);
 
     data.user_id = user_send;
     data.thread_id = thread.id;
@@ -113,34 +111,43 @@ export default class ChatRepository {
       .then(function (response) {
         return response.$loadRelated('user');
       });
+
+    this.pushNotification(result).then(function(response) {
+      console.log("Response push", response);
+    }).catch(function(e){
+      console.log("Catch error", e);
+    });
     return result;
   }
 
-  checkConversationExisted(memberOne, memberTwo) {
+  checkConversationExisted(memberOne, memberTwo, book_id) {
     return Thread.query()
       .eager('[person_one, person_two]')
       .where(function () {
-          this.where('member_one', memberOne).andWhere('member_two', memberTwo);
+          this.where('member_one', memberOne).andWhere('member_two', memberTwo)
+            .andWhere('book_id', book_id);
       })
       .orWhere(function () {
-          this.where('member_one', memberTwo).andWhere('member_two', memberOne);
+          this.where('member_one', memberTwo).andWhere('member_two', memberOne)
+            .andWhere('book_id', book_id);
       })
       .first();
   }
 
-  async startConversation(memberOne, memberTwo) {
-    let conversation = await this.checkConversationExisted(memberOne, memberTwo);
+  async startConversation(memberOne, memberTwo, book_id) {
+    let conversation = await this.checkConversationExisted(memberOne, memberTwo, book_id);
     if (!conversation) {
-      conversation = await this.addNewConversation(memberOne, memberTwo);
+      conversation = await this.addNewConversation(memberOne, memberTwo, book_id);
     }
 
     return this.getConversation(conversation.id);
   }
 
-  addNewConversation(memberOne, memberTwo) {
+  addNewConversation(memberOne, memberTwo, book_id) {
     let data = {
       member_one: memberOne,
-      member_two: memberTwo
+      member_two: memberTwo,
+      book_id: book_id
     };
     return Thread.query()
         .insert(data).then(function(result) {
