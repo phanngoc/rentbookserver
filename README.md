@@ -2,6 +2,8 @@
 
 This server is written by nodejs application, base on template : https://github.com/sahat/hackathon-starter
 This template is rewritten and follow ES6 syntax base on **babel** : https://github.com/babel/babel
+This is server for react native app: https://github.com/phanngoc/rentbookreactnative
+
 Some main package is used:
   - express
   - objection
