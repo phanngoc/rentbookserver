@@ -11,6 +11,7 @@ Some main package is used:
 
   - git clone
   - config file in database knexfile.js and database.js for your requirement.
+  - run npm i
   - run migration: knex migrate:latest --env dev
   - run seed:
   -     knex seed:run --env dev
