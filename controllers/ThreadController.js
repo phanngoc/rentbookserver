@@ -4,6 +4,7 @@ import nodemailer from 'nodemailer'
 import passport from 'passport'
 import Comment from '../models/Comment'
 import Thread from '../models/Thread'
+import Message from '../models/Message'
 import BaseController from './BaseController'
 
 export default class ThreadController extends BaseController {
@@ -23,10 +24,12 @@ export default class ThreadController extends BaseController {
       this.responseErrors(errors);
     } else {
       let threads = await Thread.query()
-        .eager('[person_one, person_two, messages]')
-        .modifyEager('messages', builder => {
-          builder.limit(4);
-        })
+        .select(Thread.raw('"threads".*, "messages"."text"'))
+        .eagerAlgorithm(Thread.WhereInEagerAlgorithm)
+        .eager('[person_one, person_two]')
+        .joinRaw('left join messages on messages.id = (SELECT MAX("id") FROM "messages" \
+                                 WHERE  "messages"."thread_id" = "threads"."id")')
+
         .where(builder => {
           builder.where('threads.member_one', self.request.decoded.id)
           .where('threads.book_id', book_id)

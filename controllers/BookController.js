@@ -102,7 +102,8 @@ export default class BookController extends BaseController {
       });
 
     let objLocation = _.pick(this.request.body, 'lat', 'lng');
-    if (!_.values(objLocation).some(x => x !== undefined)) {
+
+    if (objLocation.lat != 'undefined') {
       let locationId = await Location.query()
         .insert(_.extend(objLocation,
           {user_id: this.request.decoded.id})
@@ -281,9 +282,13 @@ export default class BookController extends BaseController {
     var q = this.request.query.q;
     var page = this.request.query.page;
     var limit = require('config').get('pagi.limitSearch');
-
-    let querySelect = "2 * 3961 * asin(sqrt((sin(radians((\"user:locations\".\"lat\" - "+lat+") / 2))) ^ 2 + \
-      cos(radians("+lat+")) * cos(radians(\"user:locations\".\"lat\")) * (sin(radians((\"user:locations\".\"lng\" - "+lng+") / 2))) ^ 2)) as distance";
+    let querySelect;
+    if (lat == undefined || lng == undefined) {
+      querySelect = "1 as distance";
+    } else {
+      querySelect = "2 * 3961 * asin(sqrt((sin(radians((\"user:locations\".\"lat\" - "+lat+") / 2))) ^ 2 + \
+        cos(radians("+lat+")) * cos(radians(\"user:locations\".\"lat\")) * (sin(radians((\"user:locations\".\"lng\" - "+lng+") / 2))) ^ 2)) as distance";
+    }
 
     let booksSearch = await Book.query()
       .where('title', 'like', '%' + q + '%')

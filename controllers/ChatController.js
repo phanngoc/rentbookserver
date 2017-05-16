@@ -14,12 +14,13 @@ export default function(server) {
   io.on('connection', function(socket){
     var userSend = socket.decoded;
     var userReceive = socket.handshake.query.user_id;
+    var bookId = socket.handshake.query.book_id;
 
     userRepo.updateSocketId(userSend.id, socket.id);
 
     socket.emit('userCurrent', socket.decoded);
 
-    chatRepo.getMessageByMember(userSend.id, userReceive).then(function(results) {
+    chatRepo.getMessageByMember(userSend.id, userReceive, bookId).then(function(results) {
       socket.emit('messages', results);
     });
 

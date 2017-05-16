@@ -46,7 +46,7 @@ export default class ChatRepository {
       timeToLive: 3,
       dryRun: false,
       data: {
-        book_id: message.book_id,
+        book_id: message.thread.book_id,
         user: message.user
       },
       notification: {
@@ -57,31 +57,33 @@ export default class ChatRepository {
     });
     var gcm_api_key = config.get('development.gcm_api_key');
     let sender = new gcm.Sender('AAAACRgMV2w:APA91bEmaGfUuPssp989DzBzFvLiC8X8uZV17GnMoFIxI1-Tvaq9nYquZhgpqmfNdLDlT0Ihwv3VJhT4y8P1a6cuBjUHIxykoZTe0DmJIEyQTDsaXKpMp4hLXo4hJM6sotBbjXmY0Nwj');
-
     return new Promise((resolve, reject) => {
       sender.send(gcmMessage, {registrationTokens: deviceTokens}, function (err, response) {
         if (err) {
-            reject(err);
+          reject(err);
         }
         else {
-            resolve(response);
+          resolve(response);
         }
       });
     });
   }
 
-  async getMessageByMember(user_id_one, user_id_two) {
+  async getMessageByMember(user_id_one, user_id_two, book_id) {
     let response = await Message.query().joinRelation('[thread]')
-      .eager('[user, thread]')
+      .eager('[user]')
       .where(builder => {
         builder.where('thread.member_one', user_id_one)
         .where('thread.member_two', user_id_two)
+        .where('thread.book_id', book_id)
       })
       .orWhere(builder => {
         builder.where('thread.member_one', user_id_two)
         .where('thread.member_two', user_id_one)
+        .where('thread.book_id', book_id)
       })
-     .then(function(response) {
+      .orderBy('messages.created_at')
+      .then(function(response) {
         return response;
       });
     return response;
@@ -109,7 +111,7 @@ export default class ChatRepository {
     let result = await Message.query()
       .insert(data)
       .then(function (response) {
-        return response.$loadRelated('user');
+        return response.$loadRelated('[user, thread]');
       });
 
     this.pushNotification(result).then(function(response) {

@@ -99,4 +99,15 @@ export default class UserController extends BaseController {
       });
     this.responseSuccess(user);
   }
+
+  async signOut() {
+    console.log("signOut", this.request.decoded.id, this.request.body.device_token);
+    let deviceToken = await DeviceToken.query()
+      .where({user_id: this.request.decoded.id, token: this.request.body.device_token})
+      .delete()
+      .then(function(result) {
+        return result;
+      });
+    this.responseSuccess(deviceToken);
+  }
 }

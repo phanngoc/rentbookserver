@@ -27,4 +27,9 @@ module.exports = function(app) {
     let userObj = new user.default(req, res);
     userObj.myProfile();
   });
+
+  app.post("/api/users/sign-out", function(req, res) {
+    let userObj = new user.default(req, res);
+    userObj.signOut();
+  });
 };
